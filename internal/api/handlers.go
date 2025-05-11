@@ -10,6 +10,7 @@ import (
 	swaggerFiles "github.com/swaggo/files"
 	ginSwagger "github.com/swaggo/gin-swagger"
 
+	_ "github.com/Unic-X/webhook-delivery/internal/docs"
 	"github.com/Unic-X/webhook-delivery/internal/models"
 	"github.com/Unic-X/webhook-delivery/internal/service"
 )
@@ -35,12 +36,12 @@ func NewHandler(service service.Service, logger *logrus.Logger) *Handler {
 // @host localhost:8080
 // @BasePath /api/v1
 func (h *Handler) SetupRoutes(router *gin.Engine) {
-	// API v1 routes
-	v1 := router.Group("/api/v1")
+	r := router.Group("/")
 	{
 		// Subscriptions
-		subs := v1.Group("/subscriptions")
+		subs := r.Group("/subscriptions")
 		{
+			subs.HEAD("/", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, "Ready") })
 			subs.POST("/", h.CreateSubscription)
 			subs.GET("/", h.ListSubscriptions)
 			subs.GET("/:id", h.GetSubscription)
@@ -50,7 +51,7 @@ func (h *Handler) SetupRoutes(router *gin.Engine) {
 		}
 
 		// Webhooks
-		webhooks := v1.Group("/webhooks")
+		webhooks := r.Group("/webhooks")
 		{
 			webhooks.POST("/ingest/:subscription_id", h.IngestWebhook)
 			webhooks.GET("/deliveries/:id", h.GetDeliveryStatus)
@@ -60,10 +61,8 @@ func (h *Handler) SetupRoutes(router *gin.Engine) {
 	// Swagger documentation
 	router.GET("/swagger/*any", ginSwagger.WrapHandler(swaggerFiles.Handler))
 
-	// Static UI
-	router.Static("/ui", "./ui")
 	router.GET("/", func(c *gin.Context) {
-		c.Redirect(http.StatusMovedPermanently, "/ui")
+		c.Redirect(http.StatusMovedPermanently, "/swagger/index.html")
 	})
 }
 

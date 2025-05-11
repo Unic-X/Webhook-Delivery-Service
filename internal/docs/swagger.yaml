@@ -1,0 +1,359 @@
+definitions:
+  github_com_Unic-X_webhook-delivery_internal_models.DeliveryAttempt:
+    properties:
+      attempt_number:
+        type: integer
+      created_at:
+        type: string
+      delivery_id:
+        type: string
+      error_details:
+        type: string
+      id:
+        type: string
+      status:
+        type: string
+      status_code:
+        type: integer
+    type: object
+  github_com_Unic-X_webhook-delivery_internal_models.DeliveryStatusResponse:
+    properties:
+      attempts:
+        items:
+          $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.DeliveryAttempt'
+        type: array
+      delivery:
+        $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.WebhookDelivery'
+    type: object
+  github_com_Unic-X_webhook-delivery_internal_models.Subscription:
+    properties:
+      created_at:
+        type: string
+      event_types:
+        items:
+          type: string
+        type: array
+      id:
+        type: string
+      secret_key:
+        type: string
+      target_url:
+        type: string
+      updated_at:
+        type: string
+    type: object
+  github_com_Unic-X_webhook-delivery_internal_models.SubscriptionRequest:
+    properties:
+      event_types:
+        items:
+          type: string
+        type: array
+      secret_key:
+        type: string
+      target_url:
+        type: string
+    required:
+    - target_url
+    type: object
+  github_com_Unic-X_webhook-delivery_internal_models.WebhookDelivery:
+    properties:
+      created_at:
+        type: string
+      event_type:
+        type: string
+      id:
+        type: string
+      max_retries:
+        type: integer
+      next_retry_at:
+        type: string
+      payload:
+        items:
+          type: integer
+        type: array
+      retry_count:
+        type: integer
+      status:
+        type: string
+      subscription_id:
+        type: string
+    type: object
+  github_com_Unic-X_webhook-delivery_internal_models.WebhookRequest:
+    properties:
+      payload:
+        items:
+          type: integer
+        type: array
+    required:
+    - payload
+    type: object
+  internal_api.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  internal_api.SuccessResponse:
+    properties:
+      message:
+        type: string
+    type: object
+info:
+  contact: {}
+paths:
+  /subscriptions:
+    get:
+      description: Get a list of all webhook subscriptions
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.Subscription'
+            type: array
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: List all webhook subscriptions
+      tags:
+      - subscriptions
+    post:
+      consumes:
+      - application/json
+      description: Create a new webhook subscription with the provided details
+      parameters:
+      - description: Subscription details
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.SubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.Subscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Create a new webhook subscription
+      tags:
+      - subscriptions
+  /subscriptions/{id}:
+    delete:
+      description: Delete a webhook subscription by its ID
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "204":
+          description: No Content
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Delete a webhook subscription
+      tags:
+      - subscriptions
+    get:
+      description: Get a webhook subscription by its ID
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.Subscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Get a webhook subscription
+      tags:
+      - subscriptions
+    put:
+      consumes:
+      - application/json
+      description: Update a webhook subscription with the provided details
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Updated subscription details
+        in: body
+        name: subscription
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.SubscriptionRequest'
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.Subscription'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Update a webhook subscription
+      tags:
+      - subscriptions
+  /subscriptions/{id}/deliveries:
+    get:
+      description: Get recent webhook deliveries for a subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: id
+        required: true
+        type: string
+      - description: Limit results (default 20)
+        in: query
+        name: limit
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            items:
+              $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.WebhookDelivery'
+            type: array
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Get recent deliveries
+      tags:
+      - subscriptions
+  /webhooks/deliveries/{id}:
+    get:
+      description: Get the status and attempt history of a webhook delivery
+      parameters:
+      - description: Delivery ID
+        in: path
+        name: id
+        required: true
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.DeliveryStatusResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Get webhook delivery status
+      tags:
+      - webhooks
+  /webhooks/ingest/{subscription_id}:
+    post:
+      consumes:
+      - application/json
+      description: Ingest a webhook payload for a subscription
+      parameters:
+      - description: Subscription ID
+        in: path
+        name: subscription_id
+        required: true
+        type: string
+      - description: Event Type
+        in: header
+        name: X-Event-Type
+        type: string
+      - description: Webhook Signature
+        in: header
+        name: X-Hub-Signature-256
+        type: string
+      - description: Webhook payload
+        in: body
+        name: payload
+        required: true
+        schema:
+          $ref: '#/definitions/github_com_Unic-X_webhook-delivery_internal_models.WebhookRequest'
+      produces:
+      - application/json
+      responses:
+        "202":
+          description: Accepted
+          schema:
+            $ref: '#/definitions/internal_api.SuccessResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+        "500":
+          description: Internal Server Error
+          schema:
+            $ref: '#/definitions/internal_api.ErrorResponse'
+      summary: Ingest a webhook
+      tags:
+      - webhooks
+swagger: "2.0"

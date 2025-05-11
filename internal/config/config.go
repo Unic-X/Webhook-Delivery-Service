@@ -30,7 +30,6 @@ type Config struct {
 
 // Load loads the configuration from environment variables
 func Load() (*Config, error) {
-	// Load .env file if it exists
 	_ = godotenv.Load()
 
 	cfg := &Config{
