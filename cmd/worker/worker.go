@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"net/http"
 	"os"
 	"os/signal"
 	"syscall"
@@ -65,6 +66,22 @@ func main() {
 	// Set up graceful shutdown
 	quit := make(chan os.Signal, 1)
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
+
+	// ----------------------------------------------
+	// This is created for Render to run this process 
+	// as a Web service as Background service is paid
+	// ----------------------------------------------
+
+	server := &http.Server{
+		Addr: ":" + "9090",
+	}
+	
+	go func() {
+		logger.Info("Starting server on port ", cfg.Port)
+		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
+			logger.WithError(err).Fatal("Failed to start server")
+		}
+	}()
 
 	// Start worker
 	go func() {
