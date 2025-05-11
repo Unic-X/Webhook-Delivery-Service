@@ -44,9 +44,9 @@ func main() {
 	defer db.Close()
 
 	// Run database migrations
-	// if err := runMigrations(cfg, logger); err != nil {
-	// 	logger.WithError(err).Fatal("Failed to run database migrations")
-	// }
+	if err := runMigrations(cfg, logger); err != nil {
+		logger.WithError(err).Fatal("Failed to run database migrations")
+	}
 
 	// Set up Redis connection
 	redisClient := redis.NewClient(&redis.Options{
