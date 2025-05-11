@@ -8,6 +8,7 @@ import (
 	"syscall"
 	"time"
 
+	"github.com/gin-gonic/gin"
 	"github.com/go-redis/redis/v8"
 	"github.com/jmoiron/sqlx"
 	_ "github.com/lib/pq"
@@ -68,14 +69,19 @@ func main() {
 	signal.Notify(quit, syscall.SIGINT, syscall.SIGTERM)
 
 	// ----------------------------------------------
-	// This is created for Render to run this process 
+	// This is created for Render to run this process
 	// as a Web service as Background service is paid
 	// ----------------------------------------------
 
+	router := gin.Default()
+
+	router.HEAD("/healthz", func(ctx *gin.Context) { ctx.JSON(http.StatusOK, "Ready") })
+
 	server := &http.Server{
-		Addr: ":" + "9090",
+		Addr:    ":" + "9090",
+		Handler: router,
 	}
-	
+
 	go func() {
 		logger.Info("Starting server on port ", cfg.Port)
 		if err := server.ListenAndServe(); err != nil && err != http.ErrServerClosed {
