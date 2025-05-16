@@ -19,7 +19,6 @@ WORKDIR /app
 
 COPY --from=builder /app/api .
 COPY --from=builder /app/migrations ./migrations
-COPY --from=builder /app/.env .
 
 # Run the API binary
 CMD ["./api"]

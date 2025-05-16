@@ -18,7 +18,6 @@ FROM alpine:latest
 WORKDIR /app
 
 COPY --from=builder /app/worker .
-COPY --from=builder /app/.env .
 
 # Run the worker binary
 CMD ["./worker"]
