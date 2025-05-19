@@ -1,4 +1,4 @@
-# Webhook Delivery Service (Segwise.ai Assignment)
+# Webhook Delivery Service
 
  Assignment based on webhook delivery service. This service ingests incoming webhooks, queues them, and attempts delivery to subscribed target URLs, handling failures with retries and providing visibility into the delivery status.
 
